@@ -45,11 +45,46 @@ netstat -ntlp
 yum install -y redis
 yum install -y nginx
 
+//查看已安装的包
+yum list installed | grep package
+
+
+//根据官网安装依赖
+sudo yum install -y autoconf automake libtool re2c
+
+wget https://www.php.net/distributions/php-8.1.22.tar.gz
+
+./configure --help
+
+  --with-avif             GD: Enable AVIF support (only for bundled libgd)    
+  --with-webp             GD: Enable WEBP support (only for bundled libgd)
+  --with-jpeg             GD: Enable JPEG support (only for bundled libgd)
+  --with-xpm              GD: Enable XPM support (only for bundled libgd)
+  --with-freetype         GD: Enable FreeType 2 support (only for bundled
+
+--with-avif  需要 libavif, Aws默认源没有,  先跳过
+--with-xpm  https://en.wikipedia.org/wiki/X_PixMap
+
+./configure --prefix=/www/server/php8.1 --enable-fpm --enable-bcmath --with-curl --enable-pcntl  --with-pdo-mysql --with-zip --with-bz2 --enable-mbstring --enable-gd --with-webp --with-jpeg  --with-freetype
+
+反复执行  yum search... yum install ...  直到 configure 通过..
+
+// 2023-08-10 整理
+sudo yum install -y autoconf automake libtool re2c libxml2 libxml2-devel sqlite-devel bzip2 bzip2-devel libcurl libcurl-devel libpng libpng-devel libwebp libwebp-devel libjpeg-turbo libjpeg-turbo-devel freetype freetype-devel libXpm libXpm-devel oniguruma oniguruma-devel libzip libzip-devel
+
+
+
+make & make install
+
+
+php-redis 需要后续单独安装:
+
+### PHP 其他参考-------------------------
+
+
 #For Php8.1
 sudo yum install libxml2 libxml2-devel libsqlite3x-devel openssl bzip2 libcurl-devel libcurl libjpeg libpng freetype gmp libmcrypt libmcrypt-devel readline readline-devel libxslt libxslt-devel zlib zlib-devel glibc glib2 ncurses curl gdbm-devel db4-devel libXpm-devel libX11-devel gd-devel gmp-devel expat-devel xmlrpc-c xmlrpc-c-devel libicu-devel libmcrypt-devel libmemcached-devel -y
 
-
-wget https://www.php.net/distributions/php-8.1.22.tar.gz
 
 
 ./configure --prefix=/www/server/php81 --with-config-file-path=/www/server/php81/etc --enable-fpm --with-fpm-group=www --enable-mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --with-iconv-dir --with-freetype --with-mcrypt --with-jpeg --with-png -with-zlib --with-libxml-dir --enable-xml --disable-rpath --enable-bcmath --enable-shmop --enable-sysvsem --enable-inline-optimization --with-curl -enable-mbstring --enable-gd --with-openssl --with-mhash --enable-pcntl --with-xmlrpc --enable-zip --enable-soap --with-gettext --enable-opcache --with-xsl --enable-sockets --enable-mbregex --enable-ftp --with-webp
@@ -58,9 +93,49 @@ wget https://www.php.net/distributions/php-8.1.22.tar.gz
 sudo apt install php8.1 php8.1-bcmath php8.1-dev php8.1-gd php8.1-fpm php8.1-iconv php8.1-curl php8.1-pdo php8.1-pdo-mysql php8.1-pdo-sqlite php8.1-phar php8.1-redis php8.1-zip php8.1-bz2 php8.1-mbstring
 
 
-#For Mysql8
+### For Mysql8
 sudo yum -y install gcc gcc-c++ cmake ncurses-devel bison openssl-devel rpcgen
 
+
+关于mysql直接参考官网提供的 yum方式安装
+https://dev.mysql.com/doc/mysql-yum-repo-quick-guide/en/#repo-qg-yum-installing
+
+systemctl start mysqld
+systemctl status mysqld
+systemctl stop mysqld
+
+2023-08-10T12:46:18.991330Z 6 [Note] [MY-010454] [Server] A temporary password is generated for root@localhost: 1*C6BwjfOZKR
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPass4!';
+
+变更默认存放目录: https://blog.51cto.com/u_15350046/3708113
+mysql> show variables like '%dir%';
++-----------------------------------------+--------------------------------+
+| Variable_name                           | Value                          |
++-----------------------------------------+--------------------------------+
+| basedir                                 | /usr/                          |
+| binlog_direct_non_transactional_updates | OFF                            |
+| character_sets_dir                      | /usr/share/mysql-8.0/charsets/ |
+| datadir                                 | /var/lib/mysql/                |
+| innodb_data_home_dir                    |                                |
+| innodb_directories                      |                                |
+| innodb_doublewrite_dir                  |                                |
+| innodb_log_group_home_dir               | ./                             |
+| innodb_max_dirty_pages_pct              | 90.000000                      |
+| innodb_max_dirty_pages_pct_lwm          | 10.000000                      |
+| innodb_redo_log_archive_dirs            |                                |
+| innodb_temp_tablespaces_dir             | ./#innodb_temp/                |
+| innodb_tmpdir                           |                                |
+| innodb_undo_directory                   | ./                             |
+| lc_messages_dir                         | /usr/share/mysql-8.0/          |
+| plugin_dir                              | /usr/lib64/mysql/plugin/       |
+| replica_load_tmpdir                     | /tmp                           |
+| slave_load_tmpdir                       | /tmp                           |
+| tmpdir                                  | /tmp                           |
++-----------------------------------------+--------------------------------+
+systemctl stop mysqld
+cp -R /var/lib/mysql /www/mysql_data/
+chown mysql:mysql -R /www/mysql_data
+vim /etc/my.cnf
 
 
 wget https://downloads.mysql.com/archives/get/p/23/file/mysql-8.0.33-linux-glibc2.28-x86_64.tar.gz
